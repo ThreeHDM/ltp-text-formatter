@@ -45,19 +45,17 @@ function Input() {
 	];
 
 	const handleFormat = (e, delta, source, editor) => {
-    let textGetted = editor.getText()
-    if(!textGetted){
-      setTextEmpty(true)
-    }else{
-      setTextEmpty(false)
-    }
+    	
+		let textGetted = editor.getText()
+    
+    	setTextEmpty(!textGetted)
+    
 		setTextToFormat(editor.getHTML());
 
-     if (!empty && formattedText) {
-				setFormattedText('');
-			}
+     	if (!empty && formattedText) { setFormattedText('');}
+
 	};
-  // console.log(textGetted)
+	// console.log(textGetted)
 	console.log('textToFormat', textToFormat);
 
 	const formatTextToWhatsApp = () => {
@@ -72,15 +70,15 @@ function Input() {
 			return;
 		}
 
-		let textFormatted = textToFormat.replace(/<\/?p>/gi, '');
-		textToFormat.replace(/<\/?br>/gi, '');
-		textFormatted = textFormatted.replace(/<strong>(.*?)<\/strong>/gi, '*$1*');
-		textFormatted = textFormatted.replace(/<em>(.*?)<\/em>/gi, '_$1_');
-		textFormatted = textFormatted.replace(/<s>(.*?)<\/s>/gi, '~$1~');
-		textFormatted = textFormatted.replace(/<ul>(.*?)<\/ul>/gi, '\n$1');
-		textFormatted = textFormatted.replace(/<ol>(.*?)<\/ol>/gi, '\n$1');
-		textFormatted = textFormatted.replace(/<li>(.*?)<\/li>/gi, '• $1\n');
-		textFormatted = textFormatted.replace(/<\/?span[^>]*>/gi, '');
+		const textFormatted = textToFormat.replace(/<\/?p>/gi, '')
+		.replace(/<br\s*\/?>/gi, '\n')
+		.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+		.replace(/<em>(.*?)<\/em>/gi, '_$1_')
+		.replace(/<s>(.*?)<\/s>/gi, '~$1~')
+		.replace(/<ul>(.*?)<\/ul>/gi, '\n$1')
+		.replace(/<ol>(.*?)<\/ol>/gi, '\n$1')
+		.replace(/<li>(.*?)<\/li>/gi, '• $1\n')
+		.replace(/<\/?span[^>]*>/gi, '');
 
 		setFormattedText(textFormatted);
 		console.log('formattedText', formattedText);
@@ -108,15 +106,12 @@ function Input() {
 						modules={modules}
 						formats={formats}
 						className='h-[320px] my-3'
-						onChange={(e, delta, source, editor) => {
-							handleFormat(e, delta, source, editor);
-						}}
+						onChange={(e, delta, source, editor) => handleFormat(e, delta, source, editor) }
 					/>
 				</div>
 				<div className=' w-1/3 mt-3'>
-					{!empty && formattedText ? (
-						<div className=''>{formattedText}</div>
-					) : (
+					{!empty && formattedText ? <textarea cols={30} rows={10} defaultValue={formattedText} />
+					 : (
 						<div className='flex flex-col items-center justify-center h-full'>
 							<p className='font-bold italic text-center'>
 								Aquí aparecerá el texto formateado
