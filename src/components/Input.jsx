@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import ReactQuill from 'react-quill';
-// import Quill from 'quill';
 import quillEmoji from 'quill-emoji';
 import 'react-quill/dist/quill.snow.css';
 import 'quill-emoji/dist/quill-emoji.css';
@@ -8,8 +7,7 @@ import Swal from 'sweetalert2';
 
 function Input() {
 	const editorRef = useRef(null);
-	// let textToFormat = '';
-  const [empty,setTextEmpty] = useState(true)
+	const [empty, setTextEmpty] = useState(true);
 	const [textToFormat, setTextToFormat] = useState('');
 	const [formattedText, setFormattedText] = useState('');
 	const modules = {
@@ -22,7 +20,7 @@ function Input() {
 				{ indent: '-1' },
 				{ indent: '+1' },
 			],
-			['link', 'image', 'emoji'],
+			['link', 'emoji'],
 			['clean'],
 		],
 		'emoji-toolbar': true,
@@ -40,23 +38,20 @@ function Input() {
 		'bullet',
 		'indent',
 		'link',
-		'image',
 		'emoji',
 	];
 
 	const handleFormat = (e, delta, source, editor) => {
-    	
-		let textGetted = editor.getText()
-    
-    	setTextEmpty(!textGetted)
-    
+
+		setTextEmpty(!editor.getText());
+
 		setTextToFormat(editor.getHTML());
 
-     	if (!empty && formattedText) { setFormattedText('');}
-
+		if (!empty && formattedText) {
+			setFormattedText('');
+		}
 	};
-	// console.log(textGetted)
-	console.log('textToFormat', textToFormat);
+
 
 	const formatTextToWhatsApp = () => {
 		if (!textToFormat) {
@@ -70,18 +65,24 @@ function Input() {
 			return;
 		}
 
-		const textFormatted = textToFormat.replace(/<\/?p>/gi, '')
-		.replace(/<br\s*\/?>/gi, '\n')
-		.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
-		.replace(/<em>(.*?)<\/em>/gi, '_$1_')
-		.replace(/<s>(.*?)<\/s>/gi, '~$1~')
-		.replace(/<ul>(.*?)<\/ul>/gi, '\n$1')
-		.replace(/<ol>(.*?)<\/ol>/gi, '\n$1')
-		.replace(/<li>(.*?)<\/li>/gi, '• $1\n')
-		.replace(/<\/?span[^>]*>/gi, '');
+		const textFormatted = textToFormat
+			.replace(/<\/?p>/gi, '')
+			.replace(/<br\s*\/?>/gi, '\n')
+			.replace(/<p class="ql-indent-1">/g, '   \n')
+			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '$2')
+			.replace(/<\/p>/g, '')
+			.replace(/\n\s*\n/g, '\n')
+			.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+			.replace(/<em>(.*?)<\/em>/gi, '_$1_')
+			.replace(/<s>(.*?)<\/s>/gi, '~$1~')
+			.replace(/<ul>(.*?)<\/ul>/gi, '\n$1')
+			.replace(/<ol>(.*?)<\/ol>/gi, '\n$1')
+			.replace(/<li>(.*?)<\/li>/gi, '• $1\n')
+			.replace(/<\/?span[^>]*>/gi, '')
+			.replace(/\s/g, ' \u200B');
 
 		setFormattedText(textFormatted);
-		console.log('formattedText', formattedText);
+		
 
 		navigator.clipboard.writeText(textFormatted).then(() => {
 			console.log('Texto copiado al portapapeles');
@@ -94,7 +95,6 @@ function Input() {
 			timer: 1000,
 			showConfirmButton: false,
 		});
-   
 	};
 
 	return (
@@ -106,12 +106,21 @@ function Input() {
 						modules={modules}
 						formats={formats}
 						className='h-[320px] my-3'
-						onChange={(e, delta, source, editor) => handleFormat(e, delta, source, editor) }
+						onChange={(e, delta, source, editor) =>
+							handleFormat(e, delta, source, editor)
+						}
 					/>
 				</div>
 				<div className=' w-1/3 mt-3'>
-					{!empty && formattedText ? <textarea cols={30} rows={10} defaultValue={formattedText} />
-					 : (
+					{!empty && formattedText ? (
+						<textarea
+							readOnly
+							cols={50}
+							rows={15}
+							defaultValue={formattedText}
+							className='resize-none select-none outline-none read-only:'
+						/>
+					) : (
 						<div className='flex flex-col items-center justify-center h-full'>
 							<p className='font-bold italic text-center'>
 								Aquí aparecerá el texto formateado
