@@ -106,9 +106,9 @@ function Input() {
 	};
 
 	return (
-		<div>
-			<div className='flex items-center justify-evenly align-top mb-8'>
-				<div className='h-[400px] w-1/3'>
+		<div >
+			<div className='flex  flex-col md:flex-row items-center justify-evenly align-top mb-8 p-4 md:p-0 '>
+				<div className='h-[400px] md:w-1/3'>
 					<ReactQuill
 						ref={editorRef}
 						modules={modules}
