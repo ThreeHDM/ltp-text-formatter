@@ -10,6 +10,7 @@ function Input() {
 	const [empty, setTextEmpty] = useState(true);
 	const [textToFormat, setTextToFormat] = useState('');
 	const [formattedText, setFormattedText] = useState('');
+
 	const modules = {
 		toolbar: [
 			[{ size: [] }],
@@ -42,7 +43,6 @@ function Input() {
 	];
 
 	const handleFormat = (e, delta, source, editor) => {
-
 		setTextEmpty(!editor.getText());
 
 		setTextToFormat(editor.getHTML());
@@ -52,8 +52,20 @@ function Input() {
 		}
 	};
 
+	function detectTextType(text) {
+		const isUnorderedList = /<ul>(.*?)<\/ul>/gi.test(text);
+		const isOrderedList = /<ol>(.*?)<\/ol>/gi.test(text);
 
+		if (isUnorderedList) {
+			console.log('lista desordenada.');
+		} else if (isOrderedList) {
+			console.log('lista ordenada.');
+		} else {
+			console.log('no es una lista');
+		}
+	}
 	const formatTextToWhatsApp = () => {
+		detectTextType(textToFormat);
 		if (!textToFormat) {
 			Swal.fire({
 				icon: 'error',
@@ -64,11 +76,12 @@ function Input() {
 			});
 			return;
 		}
-
 		const textFormatted = textToFormat
+			.replace(/(<p>.*?<\/p>)(\s*<ol>|<ul>)/gi, '$1\n$2')
 			.replace(/<\/?p>/gi, '')
+			.replace(/<\/?ul>/gi, '')
 			.replace(/<br\s*\/?>/gi, '\n')
-			.replace(/<p class="ql-indent-1">/g, '   \n')
+			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '   •$1')
 			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '$2')
 			.replace(/<\/p>/g, '')
 			.replace(/\n\s*\n/g, '\n')
@@ -77,16 +90,11 @@ function Input() {
 			.replace(/<s>(.*?)<\/s>/gi, '~$1~')
 			.replace(/<ul>(.*?)<\/ul>/gi, '\n$1')
 			.replace(/<ol>(.*?)<\/ol>/gi, '\n$1')
-			.replace(/<li>(.*?)<\/li>/gi, '• $1\n')
-			.replace(/<\/?span[^>]*>/gi, '')
-			.replace(/\s/g, ' \u200B');
+			.replace(/<li>(.*?)<\/li>/gi, `•$1\n`);
 
 		setFormattedText(textFormatted);
-		
 
-		navigator.clipboard.writeText(textFormatted).then(() => {
-			console.log('Texto copiado al portapapeles');
-		});
+		navigator.clipboard.writeText(textFormatted);
 
 		Swal.fire({
 			icon: 'success',
