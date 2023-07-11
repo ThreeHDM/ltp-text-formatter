@@ -119,7 +119,7 @@ function Input() {
 						}
 					/>
 				</div>
-				<div className=' w-1/3 mt-3'>
+				<div className=' md:w-1/3 mt-3'>
 					{!empty && formattedText ? (
 						<textarea
 							readOnly
@@ -129,8 +129,8 @@ function Input() {
 							className='resize-none select-none outline-none read-only:'
 						/>
 					) : (
-						<div className='flex flex-col items-center justify-center h-full'>
-							<p className='font-bold italic text-center'>
+						<div className='flex flex-col items-center justify-center md:h-full'>
+							<p className='font-bold italic  md:text-center'>
 								Aquí aparecerá el texto formateado
 							</p>
 							<img
