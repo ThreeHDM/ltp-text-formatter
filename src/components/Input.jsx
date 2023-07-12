@@ -52,20 +52,36 @@ function Input() {
 		}
 	};
 
-	function detectTextType(text) {
-		const isUnorderedList = /<ul>(.*?)<\/ul>/gi.test(text);
-		const isOrderedList = /<ol>(.*?)<\/ol>/gi.test(text);
+  const ulReplace = (match,innerContent)=>{
+    	const formattedList = innerContent
+					.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    •$1\n')
+					.replace(/<li>(.*?)<\/li>/gi, '•$1\n')
+					.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/gi, '$2')
+					.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+					.replace(/<em>(.*?)<\/em>/gi, '_$1_')
+					.replace(/<s>(.*?)<\/s>/gi, '~$1~');
 
-		if (isUnorderedList) {
-			console.log('lista desordenada.');
-		} else if (isOrderedList) {
-			console.log('lista ordenada.');
-		} else {
-			console.log('no es una lista');
-		}
-	}
+				return `\n${formattedList}`;
+			
+  };
+  const olReplace=(match,innerContent) =>{
+    let listItemIndex = 1;
+		const formattedList = innerContent
+
+			.replace(/<li>(.*?)<\/li>/gi, (match, listItemContent) => {
+				const formattedItem = `${listItemIndex}. ${listItemContent}\n`;
+				listItemIndex++;
+				return formattedItem;
+			})
+			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/gi, '$2')
+			.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+			.replace(/<em>(.*?)<\/em>/gi, '_$1_')
+			.replace(/<s>(.*?)<\/s>/gi, '~$1~');
+
+		return `\n${formattedList}`;
+  }
+
 	const formatTextToWhatsApp = () => {
-		detectTextType(textToFormat);
 		if (!textToFormat) {
 			Swal.fire({
 				icon: 'error',
@@ -77,20 +93,18 @@ function Input() {
 			return;
 		}
 		const textFormatted = textToFormat
-			.replace(/(<p>.*?<\/p>)(\s*<ol>|<ul>)/gi, '$1\n$2')
+			.replace(/<ul>(.*?)<\/ul>/gi, ulReplace)
+			.replace(/<ol>(.*?)<\/ol>/gi,olReplace)
+			.replace(/(<p>.*?<\/p>)(\s*(?:<ol>|<ul>))/gi, '$1\n$2')
 			.replace(/<\/?p>/gi, '')
-			.replace(/<\/?ul>/gi, '')
 			.replace(/<br\s*\/?>/gi, '\n')
-			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '   •$1')
+			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    $1\n')
 			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '$2')
 			.replace(/<\/p>/g, '')
 			.replace(/\n\s*\n/g, '\n')
 			.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
 			.replace(/<em>(.*?)<\/em>/gi, '_$1_')
-			.replace(/<s>(.*?)<\/s>/gi, '~$1~')
-			.replace(/<ul>(.*?)<\/ul>/gi, '\n$1')
-			.replace(/<ol>(.*?)<\/ol>/gi, '\n$1')
-			.replace(/<li>(.*?)<\/li>/gi, `•$1\n`);
+			.replace(/<s>(.*?)<\/s>/gi, '~$1~');
 
 		setFormattedText(textFormatted);
 
@@ -106,8 +120,8 @@ function Input() {
 	};
 
 	return (
-		<div >
-			<div className='flex  flex-col md:flex-row items-center justify-evenly align-top mb-8 p-4 md:p-0 '>
+		<div>
+			<div className='flex  flex-col md:flex-row items-center md:justify-evenly align-top mb-8 p-4 md:p-0 '>
 				<div className='h-[400px] md:w-1/3'>
 					<ReactQuill
 						ref={editorRef}
