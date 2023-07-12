@@ -140,7 +140,7 @@ function Input() {
 							cols={50}
 							rows={15}
 							defaultValue={formattedText}
-							className='resize-none select-none outline-none read-only:'
+							className='resize-none select-none outline-none read-only: max-w-[330px] lg:max-w-full '
 						/>
 					) : (
 						<div className='flex flex-col items-center justify-center md:h-full'>
@@ -158,7 +158,7 @@ function Input() {
 			</div>
 			<div className='text-center'>
 				<button
-					className='bg-green-500 rounded-lg p-2 uppercase font-bold'
+					className='bg-green-500 rounded-lg p-2 uppercase font-bold shadow-2xl'
 					onClick={formatTextToWhatsApp}
 				>
 					Formatear texto
