@@ -13,7 +13,7 @@ function Input() {
 
 	const modules = {
 		toolbar: [
-			[{ size: [] }],
+			
 			['bold', 'italic', 'strike'],
 			[
 				{ list: 'ordered' },
@@ -21,7 +21,7 @@ function Input() {
 				{ indent: '-1' },
 				{ indent: '+1' },
 			],
-			['link', 'emoji'],
+			['emoji'],
 			['clean'],
 		],
 		'emoji-toolbar': true,
@@ -30,15 +30,13 @@ function Input() {
 	};
 
 	const formats = [
-		'font',
-		'size',
+		
 		'bold',
 		'italic',
 		'strike',
 		'list',
 		'bullet',
 		'indent',
-		'link',
 		'emoji',
 	];
 
