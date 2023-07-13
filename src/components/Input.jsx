@@ -52,34 +52,47 @@ function Input() {
 		}
 	};
 
-  const ulReplace = (match,innerContent)=>{
-    	const formattedList = innerContent
-					.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    •$1\n')
-					.replace(/<li>(.*?)<\/li>/gi, '•$1\n')
-					.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/gi, '$2')
-					.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
-					.replace(/<em>(.*?)<\/em>/gi, '_$1_')
-					.replace(/<s>(.*?)<\/s>/gi, '~$1~');
-
-				return `\n${formattedList}`;
-			
-  };
-  const olReplace=(match,innerContent) =>{
-    let listItemIndex = 1;
+	const ulReplace = (match, innerContent) => {
 		const formattedList = innerContent
-
-			.replace(/<li>(.*?)<\/li>/gi, (match, listItemContent) => {
-				const formattedItem = `${listItemIndex}. ${listItemContent}\n`;
-				listItemIndex++;
-				return formattedItem;
-			})
+			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    •$1\n')
+			.replace(/<li>(.*?)<\/li>/gi, '•$1\n')
 			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/gi, '$2')
 			.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
 			.replace(/<em>(.*?)<\/em>/gi, '_$1_')
 			.replace(/<s>(.*?)<\/s>/gi, '~$1~');
 
 		return `\n${formattedList}`;
-  }
+	};
+	const olReplace = (match, innerContent) => {
+		let listItemIndex = 1;
+		let indentationLevel = 0;
+		let useLetters = false;
+		const firstIndentation = '      ';
+		const formattedList = innerContent.replace(
+			/<li.*?>(.*?)<\/li>/gi,
+			(match, listItemContent) => {
+				let indentation = '\t'.repeat(indentationLevel);
+				let prefix;
+
+				if (match.includes('ql-indent-')) {
+					useLetters = true;
+				} else {
+					useLetters = false;
+				}
+				if (useLetters) {
+					prefix = firstIndentation + String.fromCharCode(94 + listItemIndex);
+					listItemIndex++;
+				} else {
+					prefix = listItemIndex;
+					listItemIndex++;
+				}
+				const formattedItem = `${firstIndentation}${prefix}. ${indentation}${listItemContent.trim()}\n`;
+				return formattedItem;
+			}
+		);
+
+		return `\n${formattedList}`;
+	};
 
 	const formatTextToWhatsApp = () => {
 		if (!textToFormat) {
@@ -94,7 +107,7 @@ function Input() {
 		}
 		const textFormatted = textToFormat
 			.replace(/<ul>(.*?)<\/ul>/gi, ulReplace)
-			.replace(/<ol>(.*?)<\/ol>/gi,olReplace)
+			.replace(/<ol>(.*?)<\/ol>/gi, olReplace)
 			.replace(/(<p>.*?<\/p>)(\s*(?:<ol>|<ul>))/gi, '$1\n$2')
 			.replace(/<\/?p>/gi, '')
 			.replace(/<br\s*\/?>/gi, '\n')
@@ -121,8 +134,8 @@ function Input() {
 
 	return (
 		<div>
-			<div className='flex  flex-col md:flex-row items-center md:justify-evenly align-top mb-8 p-4 md:p-0 '>
-				<div className='h-[400px] md:w-1/3'>
+			<div className='flex  flex-col md:flex-row items-center md:justify-evenly align-top mb-8  '>
+				<div className='h-[400px] md:w-1/3 mb-8  w-[280px] text'>
 					<ReactQuill
 						ref={editorRef}
 						modules={modules}
@@ -133,7 +146,7 @@ function Input() {
 						}
 					/>
 				</div>
-				<div className=' md:w-1/3 mt-3'>
+				<div className=' md:w-1/3 mt-3 w-[200px] '>
 					{!empty && formattedText ? (
 						<textarea
 							readOnly
