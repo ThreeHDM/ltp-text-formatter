@@ -10,6 +10,7 @@ function Input() {
 	const [empty, setTextEmpty] = useState(true);
 	const [textToFormat, setTextToFormat] = useState('');
 	const [formattedText, setFormattedText] = useState('');
+
 	const modules = {
 		toolbar: [
 			[{ size: [] }],
@@ -42,7 +43,6 @@ function Input() {
 	];
 
 	const handleFormat = (e, delta, source, editor) => {
-
 		setTextEmpty(!editor.getText());
 
 		setTextToFormat(editor.getHTML());
@@ -52,6 +52,47 @@ function Input() {
 		}
 	};
 
+	const ulReplace = (match, innerContent) => {
+		const formattedList = innerContent
+			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    •$1\n')
+			.replace(/<li>(.*?)<\/li>/gi, '•$1\n')
+			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/gi, '$2')
+			.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+			.replace(/<em>(.*?)<\/em>/gi, '_$1_')
+			.replace(/<s>(.*?)<\/s>/gi, '~$1~');
+
+		return `\n${formattedList}`;
+	};
+	const olReplace = (match, innerContent) => {
+		let listItemIndex = 1;
+		let indentationLevel = 0;
+		let useLetters = false;
+		const firstIndentation = '      ';
+		const formattedList = innerContent.replace(
+			/<li.*?>(.*?)<\/li>/gi,
+			(match, listItemContent) => {
+				let indentation = '\t'.repeat(indentationLevel);
+				let prefix;
+
+				if (match.includes('ql-indent-')) {
+					useLetters = true;
+				} else {
+					useLetters = false;
+				}
+				if (useLetters) {
+					prefix = firstIndentation + String.fromCharCode(94 + listItemIndex);
+					listItemIndex++;
+				} else {
+					prefix = listItemIndex;
+					listItemIndex++;
+				}
+				const formattedItem = `${firstIndentation}${prefix}. ${indentation}${listItemContent.trim()}\n`;
+				return formattedItem;
+			}
+		);
+
+		return `\n${formattedList}`;
+	};
 
 	const formatTextToWhatsApp = () => {
 		if (!textToFormat) {
@@ -64,29 +105,23 @@ function Input() {
 			});
 			return;
 		}
-
 		const textFormatted = textToFormat
+			.replace(/<ul>(.*?)<\/ul>/gi, ulReplace)
+			.replace(/<ol>(.*?)<\/ol>/gi, olReplace)
+			.replace(/(<p>.*?<\/p>)(\s*(?:<ol>|<ul>))/gi, '$1\n$2')
 			.replace(/<\/?p>/gi, '')
 			.replace(/<br\s*\/?>/gi, '\n')
-			.replace(/<p class="ql-indent-1">/g, '   \n')
+			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    $1\n')
 			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '$2')
 			.replace(/<\/p>/g, '')
 			.replace(/\n\s*\n/g, '\n')
 			.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
 			.replace(/<em>(.*?)<\/em>/gi, '_$1_')
-			.replace(/<s>(.*?)<\/s>/gi, '~$1~')
-			.replace(/<ul>(.*?)<\/ul>/gi, '\n$1')
-			.replace(/<ol>(.*?)<\/ol>/gi, '\n$1')
-			.replace(/<li>(.*?)<\/li>/gi, '• $1\n')
-			.replace(/<\/?span[^>]*>/gi, '')
-			.replace(/\s/g, ' \u200B');
+			.replace(/<s>(.*?)<\/s>/gi, '~$1~');
 
 		setFormattedText(textFormatted);
-		
 
-		navigator.clipboard.writeText(textFormatted).then(() => {
-			console.log('Texto copiado al portapapeles');
-		});
+		navigator.clipboard.writeText(textFormatted);
 
 		Swal.fire({
 			icon: 'success',
@@ -99,8 +134,8 @@ function Input() {
 
 	return (
 		<div>
-			<div className='flex items-center justify-evenly align-top mb-8'>
-				<div className='h-[400px] w-1/3'>
+			<div className='flex  flex-col md:flex-row items-center md:justify-evenly align-top mb-8  '>
+				<div className='h-[400px] md:w-1/3 mb-8  w-[280px] text'>
 					<ReactQuill
 						ref={editorRef}
 						modules={modules}
@@ -111,18 +146,18 @@ function Input() {
 						}
 					/>
 				</div>
-				<div className=' w-1/3 mt-3'>
+				<div className=' md:w-1/3 mt-3 w-[200px] '>
 					{!empty && formattedText ? (
 						<textarea
 							readOnly
 							cols={50}
 							rows={15}
 							defaultValue={formattedText}
-							className='resize-none select-none outline-none read-only:'
+							className='resize-none select-none outline-none read-only: max-w-[330px] lg:max-w-full '
 						/>
 					) : (
-						<div className='flex flex-col items-center justify-center h-full'>
-							<p className='font-bold italic text-center'>
+						<div className='flex flex-col items-center justify-center md:h-full'>
+							<p className='font-bold italic  md:text-center'>
 								Aquí aparecerá el texto formateado
 							</p>
 							<img
@@ -136,7 +171,7 @@ function Input() {
 			</div>
 			<div className='text-center'>
 				<button
-					className='bg-green-500 rounded-lg p-2 uppercase font-bold'
+					className='bg-green-500 rounded-lg p-2 uppercase font-bold shadow-2xl'
 					onClick={formatTextToWhatsApp}
 				>
 					Formatear texto
