@@ -11,9 +11,11 @@ function Input() {
 	const [textToFormat, setTextToFormat] = useState('');
 	const [formattedText, setFormattedText] = useState('');
 
+
+
 	const modules = {
 		toolbar: [
-			[{ size: [] }],
+			[{ font: ['sans-serif','monospace'] }],
 			['bold', 'italic', 'strike'],
 			[
 				{ list: 'ordered' },
@@ -21,7 +23,7 @@ function Input() {
 				{ indent: '-1' },
 				{ indent: '+1' },
 			],
-			['link', 'emoji'],
+			['emoji'],
 			['clean'],
 		],
 		'emoji-toolbar': true,
@@ -31,14 +33,12 @@ function Input() {
 
 	const formats = [
 		'font',
-		'size',
 		'bold',
 		'italic',
 		'strike',
 		'list',
 		'bullet',
 		'indent',
-		'link',
 		'emoji',
 	];
 
@@ -112,6 +112,7 @@ function Input() {
 			.replace(/<\/?p>/gi, '')
 			.replace(/<br\s*\/?>/gi, '\n')
 			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    $1\n')
+			.replace(/<span class="ql-font-monospace">(.*?)<\/span>/g, '```$1```')
 			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '$2')
 			.replace(/<\/p>/g, '')
 			.replace(/\n\s*\n/g, '\n')
@@ -134,7 +135,7 @@ function Input() {
 
 	return (
 		<div>
-			<div className='flex  flex-col md:flex-row items-center md:justify-evenly align-top mb-8  '>
+			<div className='flex  flex-col md:flex-row items-center md:justify-center align-top mb-8 md:gap-[80px] '>
 				<div className='h-[400px] md:w-1/3 mb-8  w-[280px] text'>
 					<ReactQuill
 						ref={editorRef}
