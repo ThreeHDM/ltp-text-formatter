@@ -1,9 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import quillEmoji from 'quill-emoji';
+import './customFontStyle';
+
 import 'react-quill/dist/quill.snow.css';
 import 'quill-emoji/dist/quill-emoji.css';
 import Swal from 'sweetalert2';
+
 
 function Input() {
 	const editorRef = useRef(null);
@@ -15,20 +18,16 @@ function Input() {
 
 	const modules = {
 		toolbar: [
-			[{ font: ['sans-serif','monospace'] }],
+			[{ font: ['sans-serif', 'monospace'] }],
 			['bold', 'italic', 'strike'],
-			[
-				{ list: 'ordered' },
-				{ list: 'bullet' },
-				{ indent: '-1' },
-				{ indent: '+1' },
-			],
+			[{ list: 'ordered' }, { list: 'bullet' }],
 			['emoji'],
 			['clean'],
 		],
 		'emoji-toolbar': true,
 		'emoji-textarea': false,
 		'emoji-shortname': true,
+
 	};
 
 	const formats = [
@@ -38,7 +37,6 @@ function Input() {
 		'strike',
 		'list',
 		'bullet',
-		'indent',
 		'emoji',
 	];
 
@@ -50,6 +48,8 @@ function Input() {
 		if (!empty && formattedText) {
 			setFormattedText('');
 		}
+  
+
 	};
 
 	const ulReplace = (match, innerContent) => {
@@ -113,6 +113,7 @@ function Input() {
 			.replace(/<br\s*\/?>/gi, '\n')
 			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    $1\n')
 			.replace(/<span class="ql-font-monospace">(.*?)<\/span>/g, '```$1```')
+      .replace(/<span class="ql-font-sans-serif">(.*?)<\/span>/g,'$1')
 			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '$2')
 			.replace(/<\/p>/g, '')
 			.replace(/\n\s*\n/g, '\n')
