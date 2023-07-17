@@ -7,14 +7,19 @@ import 'react-quill/dist/quill.snow.css';
 import 'quill-emoji/dist/quill-emoji.css';
 import Swal from 'sweetalert2';
 
-
 function Input() {
 	const editorRef = useRef(null);
 	const [empty, setTextEmpty] = useState(true);
 	const [textToFormat, setTextToFormat] = useState('');
 	const [formattedText, setFormattedText] = useState('');
 
-
+	useEffect(() => {
+		const lastSession = localStorage.getItem('textToFormat');
+		if (editorRef.current) {
+			const editor = editorRef.current.getEditor();
+			editor.clipboard.dangerouslyPasteHTML(lastSession);
+		}
+	}, []);
 
 	const modules = {
 		toolbar: [
@@ -27,7 +32,6 @@ function Input() {
 		'emoji-toolbar': true,
 		'emoji-textarea': false,
 		'emoji-shortname': true,
-
 	};
 
 	const formats = [
@@ -42,14 +46,12 @@ function Input() {
 
 	const handleFormat = (e, delta, source, editor) => {
 		setTextEmpty(!editor.getText());
-
 		setTextToFormat(editor.getHTML());
 
 		if (!empty && formattedText) {
 			setFormattedText('');
 		}
-  
-
+		localStorage.setItem('textToFormat', editor.getHTML());
 	};
 
 	const ulReplace = (match, innerContent) => {
@@ -113,13 +115,17 @@ function Input() {
 			.replace(/<br\s*\/?>/gi, '\n')
 			.replace(/<li class="ql-indent-1">(.*?)<\/li>/g, '    $1\n')
 			.replace(/<span class="ql-font-monospace">(.*?)<\/span>/g, '```$1```')
-      .replace(/<span class="ql-font-sans-serif">(.*?)<\/span>/g,'$1')
+			.replace(/<span class="ql-font-sans-serif">(.*?)<\/span>/g, '$1')
 			.replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '$2')
 			.replace(/<\/p>/g, '')
 			.replace(/\n\s*\n/g, '\n')
-			.replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
-			.replace(/<em>(.*?)<\/em>/gi, '_$1_')
-			.replace(/<s>(.*?)<\/s>/gi, '~$1~');
+			.replace(/<strong(?:\s+[^>]+)?>(.*?)<\/strong>/gi, '*$1*')
+			.replace(/<em(?:\s+[^>]+)?>(.*?)<\/em>/gi, '_$1_')
+			.replace(/<s(?:\s+[^>]+)?>(.*?)<\/s>/gi, '~$1~')
+			.replace(
+				/<span class="ql-emojiblot".*?>.*?<span class="ap ap-(\w+)">(.*?)<\/span>.*?<\/span>.*?<\/span>/gi,
+				'$2'
+			);
 
 		setFormattedText(textFormatted);
 
@@ -142,7 +148,7 @@ function Input() {
 						ref={editorRef}
 						modules={modules}
 						formats={formats}
-						className='h-[320px] my-3'
+						className='h-[320px] my-3 '
 						onChange={(e, delta, source, editor) =>
 							handleFormat(e, delta, source, editor)
 						}
@@ -165,7 +171,7 @@ function Input() {
 							<img
 								src='https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg'
 								alt='whatsapp-logo'
-								className='w-32 h-32 mt-4'
+								className='w-32 h-32 mt-4 drop-shadow-2xl'
 							/>
 						</div>
 					)}
